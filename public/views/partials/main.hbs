@@ -1,0 +1,137 @@
+<div id="page">
+  {{#if userExists}}
+  <div style="background-color:grey">
+    <div><h1>Bienvenido {{usuario}}!!!</h1></div>
+    <div>
+      <button id='logout' onclick="logout()">
+        Desloguear
+      </button>
+    </div>
+  </div>
+   {{/if}}
+  <div>
+    <h1 class="display-6">Formulario alta de producto</h1>
+  </div>
+
+    <div class="mb-3">
+      <label for="inputName" class="form-label">Nombre</label>
+      <input
+        type="text"
+        name="title"
+        class="form-control"
+        aria-label="Sizing example input"
+        aria-describedby="inputGroup-sizing-sm"
+        id="title"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="inputPrice" class="form-label">Precio</label>
+      <input
+        type="text"
+        name="price"
+        class="form-control"
+        aria-label="Amount (to the nearest dollar)"
+        id="price"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="inputUrl" class="form-label">URL Foto</label>
+      <input
+        type="text"
+        name="thumbnail"
+        class="form-control"
+        aria-label="Sizing example input"
+        aria-describedby="inputGroup-sizing-sm"
+        id="thumbnail"
+      />
+    </div>
+    <button class="btn btn-primary" onclick="guardarProducto()">Agregar</button>
+
+    <h1>Grilla de productos</h1>
+    <div>
+    {{#if arrayExists}}
+    <table id='tabla' class="table">
+      <thead>
+        <tr>
+          <th scope="col">Producto</th>
+          <th scope="col">Precio</th>
+          <th scope="col">Foto</th>
+        </tr>
+      </thead>
+      <tbody id="tablebody">
+        {{#each allProducts}}
+          <tr>
+            <td>{{this.title}}</td>
+            <td>{{this.price}}</td>
+            <td><img
+                style="width: 40px ;"
+                src="{{this.thumbnail}}"
+                alt=""
+                srcset=""
+              /></td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <div>
+      <p>No hay productos</p>
+    </div>
+  {{/if}}
+</div>
+
+  <div>
+    <h1>Centro de mensajes</h1>
+  <div>
+      <div class="ui container">
+      <div class="ui grid">
+        <div class="eight wide column">
+            <div class="ui container">
+                <h1>Mensajes</h1>
+                <div id="posts"></div>
+            </div>
+        </div>
+        <div class="eight wide column">
+          <div class="card">
+            <div class="container">
+              <h1>Enviar mensaje</h1>
+              <div class="ui form">
+                <div class="field">
+                  <label for="">Email</label>
+                  <input type="email" name="email" id="email" />
+                </div>
+                <div class="field">
+                  <label for="">Nombre:</label>
+                  <input type="text" name="nombre" id="nombre" />
+                </div>
+                <div class="field">
+                  <label for="">Apellido:</label>
+                  <input type="text" name="apellido" id="apellido" />
+                </div>
+                <div class="field">
+                  <label for="">Edad:</label>
+                  <input type="text" name="edad" id="edad" />
+                </div>
+                <div class="field">
+                  <label for="">Alias:</label>
+                  <input type="text" name="alias" id="alias" />
+                </div>
+                <div class="field">
+                  <label for="">Avatar:</label>
+                  <input type="text" name="avatar" id="avatar" />
+                </div>
+                <div class="field">
+                  <label for="">Mensaje:</label>
+                  <textarea name="mensaje" id="mensaje" cols="30" rows="10"></textarea>
+                </div>
+                <button class="ui primary button" onclick="enviarMensaje()">
+                  Enviar mensaje 
+                  <i class="send icon"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
