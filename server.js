@@ -5,6 +5,8 @@ const events = require("./socket_events");
 const messageDAO = require("./daos/messagesDao")
 const productDAO = require("./daos/productsDao")
 const usuarioDAO = require("./daos/usuariosDao")
+const {checkPassword, hashPassword}= require('./utils/utils')
+const {Types}=require('mongoose')
 const app = express();
 const passport= require('passport')
 const LocalStrategy=require('passport-local').Strategy
@@ -13,10 +15,12 @@ const socketServer = new SocketServer(httpServer);
 const handlebars = require("express-handlebars");
 const { Router } = express;
 const routerProducto = Router();
+
+
 app.use("/", routerProducto);
-app.use(express.static("public"));
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+routerProducto.use(express.static("public"));
+routerProducto.use(express.json())
+routerProducto.use(express.urlencoded({ extended: true }));
 const hbs = handlebars.create({
   extname: ".hbs",
   defaultLayout: "index.hbs",
@@ -28,13 +32,23 @@ app.engine("hbs", hbs.engine);
 app.set("views", "./public/views/partials");
 app.set("view engine", "hbs");
 
-const {checkPassword, hashPassword}= require('./utils/utils')
-const {Types}=require('mongoose')
+passport.serializeUser((user,done)=>{
+  console.log(user)
+  done(null, user._id)
+})
+
+passport.deserializeUser(async(id,done)=>{
+  idUser=Types.ObjectId(id)
+  const user=await usuarioDAO.findUserById(idUser)
+  console.log(user)
+  done(null,user)
+
+})
 
 passport.use("login", new LocalStrategy(async (username,password,done)=>{
     const usuario= await usuarioDAO.findUser(username)
     const passHash=usuario.password
-    if(!usuario || !checkPassword(passHash,password) ){
+    if(!usuario || !checkPassword(password,passHash) ){
       console.log(`Usuario y/o contraseña invalidos`)
       return done(null,false)
     }else{
@@ -57,25 +71,15 @@ passport.use('signup', new LocalStrategy({
     address:address
   }
   const generateUser= await usuarioDAO.saveUser(newUser)
-  return done(null,newUser)
+  return done(null,generateUser)
 }))
 
-passport.serializeUser((user,done)=>{
-  done(null, user._id)
-})
-
-passport.deserializeUser(async(id,done)=>{
-  idUser=Types.ObjectId(id)
-  const user=await usuarioDAO.findUserById(idUser)
-  done(null,user)
-
-})
 
 const session=require('express-session')
 const MongoStore=require('connect-mongo');
 const advancedOptions={useNewUrlParser:true, useUnifiedTopology:true}
 
-app.use(session({
+routerProducto.use(session({
 
 store:MongoStore.create({
   mongoUrl:'mongodb+srv://lucasiannu:wxRk2hMHkRguBXdU@cluster0.l96bh3b.mongodb.net/?retryWrites=true&w=majority',
@@ -88,8 +92,8 @@ store:MongoStore.create({
   resave:false,
   saveUninitialized:true
 }))
-app.use(passport.initialize());
-app.use(passport.session());
+routerProducto.use(passport.initialize());
+routerProducto.use(passport.session());
 
 
 routerProducto.get('/login',(req,res)=>{
@@ -99,7 +103,7 @@ routerProducto.get('/login',(req,res)=>{
 routerProducto.post('/login',passport.authenticate('login',{
   failureRedirect:'/login'
 }),(req,res)=>{
-    req.session.user=req.usuario
+    req.session.user=req.user
     res.redirect('/')
 })
 
@@ -110,7 +114,7 @@ routerProducto.get('/signup',(req,res)=>{
 routerProducto.post('/signup',passport.authenticate('signup',{
   failureRedirect:'/signup'
 }),(req,res)=>{
-  req.session.user=req.usuario
+  req.session.user=req.user
     res.redirect('/login')
 })
 
